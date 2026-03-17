@@ -1,4 +1,13 @@
+import { Redis } from "@upstash/redis";
+
 const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
+
+function getRedis() {
+  return new Redis({
+    url: process.env.KV_REST_API_URL,
+    token: process.env.KV_REST_API_TOKEN,
+  });
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -30,6 +39,32 @@ export default async function handler(req, res) {
   try {
     const apiRes = await fetch(url);
     const apiData = await apiRes.json();
+
+    // Store lead details in Redis on success
+    if (apiData.status === "Success" && apiData.data) {
+      try {
+        const redis = getRedis();
+        const accountId = apiData.data.AccountID || apiData.data.UserID;
+        if (accountId) {
+          const leadInfo = {
+            AccountID: apiData.data.AccountID || "",
+            UserID: apiData.data.UserID || "",
+            FirstName: data.FirstName,
+            LastName: data.LastName,
+            Email: data.LoginEmail,
+            Phone: `+${data.PhonePrefix}${data.Phone}`,
+            Country: data.Country,
+            RegisteredAt: new Date().toISOString().replace("T", " ").slice(0, 19),
+          };
+          await redis.hset(`lead:${accountId}`, leadInfo);
+          // Also add to the set of all lead IDs for easy listing
+          await redis.sadd("lead_ids", accountId);
+        }
+      } catch {
+        // Redis save failed — don't block the registration response
+      }
+    }
+
     res.json(apiData);
   } catch {
     res.status(500).json({ status: "Failed", errors: "Server error" });
