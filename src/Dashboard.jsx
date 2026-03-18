@@ -27,7 +27,11 @@ export default function Dashboard({ onLogout }) {
   const [modalData, setModalData] = useState(null);
 
   // Settings state
-  const [settingsForm, setSettingsForm] = useState({ currentPassword: "", newUsername: "", newPassword: "" });
+  const [settingsForm, setSettingsForm] = useState({
+    currentPassword: "",
+    newUsername: "",
+    newPassword: "",
+  });
   const [settingsMsg, setSettingsMsg] = useState("");
   const [settingsError, setSettingsError] = useState("");
   const [settingsLoading, setSettingsLoading] = useState(false);
@@ -46,7 +50,11 @@ export default function Dashboard({ onLogout }) {
       const data = await res.json();
       if (data.success) {
         setSettingsMsg("Credentials updated successfully.");
-        setSettingsForm({ currentPassword: "", newUsername: "", newPassword: "" });
+        setSettingsForm({
+          currentPassword: "",
+          newUsername: "",
+          newPassword: "",
+        });
       } else {
         setSettingsError(data.error || "Failed to update.");
       }
@@ -158,29 +166,29 @@ export default function Dashboard({ onLogout }) {
 
       {/* Controls */}
       {activeTab !== "settings" && (
-      <div className="controls">
-        <label>From:</label>
-        <input
-          type="datetime-local"
-          className="date-input"
-          value={dateFrom}
-          onChange={(e) => setDateFrom(e.target.value)}
-        />
-        <label>To:</label>
-        <input
-          type="datetime-local"
-          className="date-input"
-          value={dateTo}
-          onChange={(e) => setDateTo(e.target.value)}
-        />
-        <button
-          className="refresh-btn"
-          onClick={refreshAll}
-          disabled={leadsLoading || ftdLoading}
-        >
-          {leadsLoading || ftdLoading ? "Loading..." : "Refresh"}
-        </button>
-      </div>
+        <div className="controls">
+          <label>From:</label>
+          <input
+            type="datetime-local"
+            className="date-input"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+          />
+          <label>To:</label>
+          <input
+            type="datetime-local"
+            className="date-input"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+          />
+          <button
+            className="refresh-btn"
+            onClick={refreshAll}
+            disabled={leadsLoading || ftdLoading}
+          >
+            {leadsLoading || ftdLoading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
       )}
 
       {/* Leads Tab */}
@@ -239,7 +247,9 @@ export default function Dashboard({ onLogout }) {
                       <td>{lead.Country || "-"}</td>
                       <td>{lead.CreateTime || "-"}</td>
                       <td>
-                        <span className={`status-badge ${lead.SaleStatus ? "status-ftd" : "status-new"}`}>
+                        <span
+                          className={`status-badge ${lead.SaleStatus ? "status-ftd" : "status-new"}`}
+                        >
                           {lead.SaleStatus || "New"}
                         </span>
                       </td>
@@ -347,33 +357,60 @@ export default function Dashboard({ onLogout }) {
       {/* Settings Tab */}
       {activeTab === "settings" && (
         <div className="form-container" style={{ margin: "0 auto" }}>
-          <h2 style={{ color: "#00d4ff", marginBottom: 20 }}>Change Credentials</h2>
+          <h2 style={{ color: "#00d4ff", marginBottom: 20 }}>
+            Change Credentials
+          </h2>
           <form onSubmit={handleChangeCredentials} className="algo-form">
             <input
               type="password"
               placeholder="Current Password"
               value={settingsForm.currentPassword}
-              onChange={(e) => setSettingsForm({ ...settingsForm, currentPassword: e.target.value })}
+              onChange={(e) =>
+                setSettingsForm({
+                  ...settingsForm,
+                  currentPassword: e.target.value,
+                })
+              }
               required
             />
             <input
               placeholder="New Username"
               value={settingsForm.newUsername}
-              onChange={(e) => setSettingsForm({ ...settingsForm, newUsername: e.target.value })}
+              onChange={(e) =>
+                setSettingsForm({
+                  ...settingsForm,
+                  newUsername: e.target.value,
+                })
+              }
               required
             />
             <input
               type="password"
               placeholder="New Password (min 4 chars)"
               value={settingsForm.newPassword}
-              onChange={(e) => setSettingsForm({ ...settingsForm, newPassword: e.target.value })}
+              onChange={(e) =>
+                setSettingsForm({
+                  ...settingsForm,
+                  newPassword: e.target.value,
+                })
+              }
               required
               minLength={4}
             />
-            <button type="submit" className="submit-btn" disabled={settingsLoading}>
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={settingsLoading}
+            >
               {settingsLoading ? "Updating..." : "Update Credentials"}
             </button>
-            {settingsMsg && <div style={{ color: "#22c55e", textAlign: "center", marginTop: 8 }}>{settingsMsg}</div>}
+            {settingsMsg && (
+              <div
+                style={{ color: "#22c55e", textAlign: "center", marginTop: 8 }}
+              >
+                {settingsMsg}
+              </div>
+            )}
             {settingsError && <div className="error">{settingsError}</div>}
           </form>
         </div>

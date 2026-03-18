@@ -1,7 +1,8 @@
 const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method not allowed" });
 
   const data = req.body;
 

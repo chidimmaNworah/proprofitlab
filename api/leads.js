@@ -10,7 +10,8 @@ function getRedis() {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method not allowed" });
 
   const data = req.body;
 
@@ -44,7 +45,13 @@ export default async function handler(req, res) {
         apiData.data = apiData.data.map((item, i) => {
           const local = results[i];
           if (local && local.FirstName) {
-            return { ...item, FirstName: local.FirstName, LastName: local.LastName, Email: local.Email, Phone: local.Phone };
+            return {
+              ...item,
+              FirstName: local.FirstName,
+              LastName: local.LastName,
+              Email: local.Email,
+              Phone: local.Phone,
+            };
           }
           return item;
         });

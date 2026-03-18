@@ -10,7 +10,8 @@ function getRedis() {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method not allowed" });
 
   const data = req.body;
 
@@ -54,7 +55,10 @@ export default async function handler(req, res) {
             Email: data.LoginEmail,
             Phone: `+${data.PhonePrefix}${data.Phone}`,
             Country: data.Country,
-            RegisteredAt: new Date().toISOString().replace("T", " ").slice(0, 19),
+            RegisteredAt: new Date()
+              .toISOString()
+              .replace("T", " ")
+              .slice(0, 19),
           };
           await redis.hset(`lead:${accountId}`, leadInfo);
           // Also add to the set of all lead IDs for easy listing

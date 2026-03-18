@@ -13,7 +13,9 @@ const CREDS_FILE = join(__dirname, "credentials.json");
 const LEADS_FILE = join(__dirname, "leads.json");
 
 function hashPassword(password, salt) {
-  return createHash("sha256").update(salt + password).digest("hex");
+  return createHash("sha256")
+    .update(salt + password)
+    .digest("hex");
 }
 
 function loadCreds() {
@@ -35,7 +37,11 @@ function saveCreds(creds) {
 
 function loadLeads() {
   if (!existsSync(LEADS_FILE)) writeFileSync(LEADS_FILE, "[]");
-  try { return JSON.parse(readFileSync(LEADS_FILE, "utf-8")); } catch { return []; }
+  try {
+    return JSON.parse(readFileSync(LEADS_FILE, "utf-8"));
+  } catch {
+    return [];
+  }
 }
 
 function saveLeads(leads) {
@@ -140,7 +146,13 @@ app.post("/api/leads", async (req, res) => {
       apiData.data = apiData.data.map((item) => {
         const local = localMap[item.AccountID];
         if (local) {
-          return { ...item, FirstName: local.FirstName, LastName: local.LastName, Email: local.Email, Phone: local.Phone };
+          return {
+            ...item,
+            FirstName: local.FirstName,
+            LastName: local.LastName,
+            Email: local.Email,
+            Phone: local.Phone,
+          };
         }
         return item;
       });
@@ -183,7 +195,10 @@ app.post("/api/deposits", async (req, res) => {
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;
   const creds = loadCreds();
-  if (username === creds.username && hashPassword(password, creds.salt) === creds.passwordHash) {
+  if (
+    username === creds.username &&
+    hashPassword(password, creds.salt) === creds.passwordHash
+  ) {
     res.json({ success: true });
   } else {
     res.status(401).json({ success: false, error: "Invalid credentials." });
@@ -196,11 +211,18 @@ app.post("/api/auth/change", (req, res) => {
   const creds = loadCreds();
 
   if (hashPassword(currentPassword, creds.salt) !== creds.passwordHash) {
-    return res.status(401).json({ success: false, error: "Current password is incorrect." });
+    return res
+      .status(401)
+      .json({ success: false, error: "Current password is incorrect." });
   }
 
   if (!newUsername || !newPassword || newPassword.length < 4) {
-    return res.status(400).json({ success: false, error: "New username and password (min 4 chars) are required." });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        error: "New username and password (min 4 chars) are required.",
+      });
   }
 
   const salt = randomBytes(16).toString("hex");

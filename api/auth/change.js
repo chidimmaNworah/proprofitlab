@@ -2,7 +2,9 @@ import { createHash, randomBytes } from "crypto";
 import { Redis } from "@upstash/redis";
 
 function hashPassword(password, salt) {
-  return createHash("sha256").update(salt + password).digest("hex");
+  return createHash("sha256")
+    .update(salt + password)
+    .digest("hex");
 }
 
 function getRedis() {
@@ -13,7 +15,8 @@ function getRedis() {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method not allowed" });
 
   const { currentPassword, newUsername, newPassword } = req.body;
   const redis = getRedis();
@@ -44,19 +47,31 @@ export default async function handler(req, res) {
       // Plain-text fallback
       const plain = process.env.DASH_PASSWORD || "admin";
       if (currentPassword !== plain) {
-        return res.status(401).json({ success: false, error: "Current password is incorrect." });
+        return res
+          .status(401)
+          .json({ success: false, error: "Current password is incorrect." });
       }
       // Password matched via plain-text, proceed to save new creds
       currentHash = null;
     }
   }
 
-  if (currentHash && hashPassword(currentPassword, currentSalt) !== currentHash) {
-    return res.status(401).json({ success: false, error: "Current password is incorrect." });
+  if (
+    currentHash &&
+    hashPassword(currentPassword, currentSalt) !== currentHash
+  ) {
+    return res
+      .status(401)
+      .json({ success: false, error: "Current password is incorrect." });
   }
 
   if (!newUsername || !newPassword || newPassword.length < 4) {
-    return res.status(400).json({ success: false, error: "New username and password (min 4 chars) are required." });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        error: "New username and password (min 4 chars) are required.",
+      });
   }
 
   const salt = randomBytes(16).toString("hex");
@@ -68,6 +83,8 @@ export default async function handler(req, res) {
     });
     res.json({ success: true });
   } catch {
-    res.status(500).json({ success: false, error: "Failed to save credentials." });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to save credentials." });
   }
 }

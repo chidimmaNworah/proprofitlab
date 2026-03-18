@@ -2,7 +2,9 @@ import { createHash } from "crypto";
 import { Redis } from "@upstash/redis";
 
 function hashPassword(password, salt) {
-  return createHash("sha256").update(salt + password).digest("hex");
+  return createHash("sha256")
+    .update(salt + password)
+    .digest("hex");
 }
 
 function getRedis() {
@@ -13,7 +15,8 @@ function getRedis() {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method not allowed" });
 
   const { username, password } = req.body;
 
@@ -23,10 +26,15 @@ export default async function handler(req, res) {
     const creds = await redis.hgetall("dash_credentials");
 
     if (creds && creds.username && creds.passwordHash && creds.salt) {
-      if (username === creds.username && hashPassword(password, creds.salt) === creds.passwordHash) {
+      if (
+        username === creds.username &&
+        hashPassword(password, creds.salt) === creds.passwordHash
+      ) {
         return res.json({ success: true });
       }
-      return res.status(401).json({ success: false, error: "Invalid credentials." });
+      return res
+        .status(401)
+        .json({ success: false, error: "Invalid credentials." });
     }
   } catch {
     // Redis unavailable — fall through to env var check
@@ -38,10 +46,15 @@ export default async function handler(req, res) {
   const storedSalt = process.env.DASH_PASSWORD_SALT;
 
   if (storedHash && storedSalt) {
-    if (username === storedUsername && hashPassword(password, storedSalt) === storedHash) {
+    if (
+      username === storedUsername &&
+      hashPassword(password, storedSalt) === storedHash
+    ) {
       return res.json({ success: true });
     }
-    return res.status(401).json({ success: false, error: "Invalid credentials." });
+    return res
+      .status(401)
+      .json({ success: false, error: "Invalid credentials." });
   }
 
   // Fallback: plain-text password from env var
@@ -49,5 +62,7 @@ export default async function handler(req, res) {
   if (username === storedUsername && password === plainPassword) {
     return res.json({ success: true });
   }
-  return res.status(401).json({ success: false, error: "Invalid credentials." });
+  return res
+    .status(401)
+    .json({ success: false, error: "Invalid credentials." });
 }
