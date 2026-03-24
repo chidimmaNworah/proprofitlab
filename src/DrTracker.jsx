@@ -76,6 +76,7 @@ function DrTracker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [detectedIP, setDetectedIP] = useState("");
 
   const [clickId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -93,6 +94,12 @@ function DrTracker() {
         }
       })
       .catch(() => {});
+
+    // Detect client IP
+    fetch("https://api.ipify.org?format=json")
+      .then((r) => r.json())
+      .then((d) => setDetectedIP(d.ip))
+      .catch(() => {});
   }, []);
 
   const handleChange = (e) => {
@@ -106,14 +113,16 @@ function DrTracker() {
     setSuccess("");
 
     try {
-      let clientIP = "";
-
-      try {
-        const ipRes = await fetch("https://api.ipify.org?format=json");
-        const ipData = await ipRes.json();
-        clientIP = ipData.ip;
-      } catch (err) {
-        console.warn("IP fetch failed:", err);
+      // Use pre-fetched IP or fall back to a fresh fetch
+      let clientIP = detectedIP;
+      if (!clientIP) {
+        try {
+          const ipRes = await fetch("https://api.ipify.org?format=json");
+          const ipData = await ipRes.json();
+          clientIP = ipData.ip;
+        } catch (err) {
+          console.warn("IP fetch failed:", err);
+        }
       }
       const phoneNumber = form.PhonePrefix
         ? `+${form.PhonePrefix}${form.Phone}`
@@ -229,6 +238,9 @@ function DrTracker() {
           value={form.Description}
           onChange={handleChange}
         />{" "}
+        {detectedIP && (
+          <div className="detected-info">Your IP: {detectedIP}</div>
+        )}
         <button type="submit" className="submit-btn" disabled={loading}>
           {" "}
           {loading ? "Registering..." : "Submit Registration"}{" "}

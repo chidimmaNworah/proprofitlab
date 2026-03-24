@@ -100,6 +100,7 @@ function AlgoLead() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [countryCode, setCountryCode] = useState("");
+  const [detectedIP, setDetectedIP] = useState("");
   const [clickId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     let cid = params.get("clickid");
@@ -123,6 +124,12 @@ function AlgoLead() {
         setCountryCode(code.trim());
       })
       .catch(() => {});
+
+    // Detect client IP
+    fetch("https://api.ipify.org?format=json")
+      .then((r) => r.json())
+      .then((d) => setDetectedIP(d.ip))
+      .catch(() => {});
   }, []);
 
   const handleChange = (e) => {
@@ -135,9 +142,17 @@ function AlgoLead() {
     setError("");
 
     try {
-      // Get client IP
-      const ipRes = await fetch("https://api.ipify.org?format=json");
-      const ipData = await ipRes.json();
+      // Use pre-fetched IP or fall back to a fresh fetch
+      let clientIP = detectedIP;
+      if (!clientIP) {
+        try {
+          const ipRes = await fetch("https://api.ipify.org?format=json");
+          const ipData = await ipRes.json();
+          clientIP = ipData.ip;
+        } catch (err) {
+          // IP unavailable — continue without it
+        }
+      }
 
       const country = countryPhoneToISO[`+${form.PhonePrefix}`] || "US";
       const password = generatePassword();
@@ -151,7 +166,7 @@ function AlgoLead() {
         Phone: form.Phone,
         Country: country,
         Language: "en",
-        ClientIP: ipData.ip,
+        ClientIP: clientIP,
         ClickID: clickId.replace("clickid_", ""),
         FunnelID: 600,
         CustomSource: "proprofitlab",
@@ -255,6 +270,10 @@ function AlgoLead() {
             Detected: {countryCode} →{" "}
             {countryPhoneToISO[countryCode] || "Unknown"}
           </div>
+        )}
+
+        {detectedIP && (
+          <div className="detected-info">Your IP: {detectedIP}</div>
         )}
 
         <button type="submit" className="submit-btn" disabled={loading}>
