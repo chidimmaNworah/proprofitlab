@@ -6,12 +6,13 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { createHash, randomBytes } from "crypto";
 
-config();
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Load .env from project root (parent directory)
+config({ path: join(__dirname, "..", ".env") });
+
 const CREDS_FILE = join(__dirname, "credentials.json");
 const LEADS_FILE = join(__dirname, "leads.json");
-
 function hashPassword(password, salt) {
   return createHash("sha256")
     .update(salt + password)
@@ -217,12 +218,10 @@ app.post("/api/auth/change", (req, res) => {
   }
 
   if (!newUsername || !newPassword || newPassword.length < 4) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        error: "New username and password (min 4 chars) are required.",
-      });
+    return res.status(400).json({
+      success: false,
+      error: "New username and password (min 4 chars) are required.",
+    });
   }
 
   const salt = randomBytes(16).toString("hex");
@@ -232,6 +231,134 @@ app.post("/api/auth/change", (req, res) => {
     salt,
   });
   res.json({ success: true });
+});
+
+// ============== Dr Tracker API Routes ==============
+const DRTRACKER_API_URL = "https://tracker.edgecastmarketing.org/repost.php";
+const DRTRACKER_API_KEY = process.env.DRTRACKER_API_KEY;
+const DRTRACKER_API_PASSWORD = process.env.DRTRACKER_API_PASSWORD;
+const DRTRACKER_CAMPAIGN_ID = process.env.DRTRACKER_CAMPAIGN_ID;
+
+// Dr Tracker Registration endpoint
+app.post("/api/drtracker", async (req, res) => {
+  const data = req.body;
+
+  const params = new URLSearchParams({
+    ApiKey: DRTRACKER_API_KEY,
+    ApiPassword: DRTRACKER_API_PASSWORD,
+    CampaignID: DRTRACKER_CAMPAIGN_ID,
+    FirstName: data.FirstName || "",
+    LastName: data.LastName || "",
+    Email: data.Email || "",
+    PhoneNumber: data.PhoneNumber || "",
+    Language: data.Language || "en",
+    Description: data.Description || "",
+    Note: data.Note || "",
+    Page: data.Page || "proprofitlab",
+    IP: data.IP || "",
+    SubSource: data.SubSource || "",
+    ClickID: data.ClickID || "",
+  });
+
+  try {
+    const apiRes = await fetch(`${DRTRACKER_API_URL}?act=register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    });
+
+    const apiData = await apiRes.json();
+
+    // Store lead details locally on success
+    if (apiData.ret_code === "200" || apiData.ret_code === "201") {
+      const leads = loadLeads();
+      leads.push({
+        leadid: apiData.leadid || "",
+        uniqueid: apiData.uniqueid || "",
+        brand_id: apiData.brand_id || "",
+        FirstName: data.FirstName,
+        LastName: data.LastName,
+        Email: data.Email,
+        Phone: data.PhoneNumber,
+        ClickID: data.ClickID || "",
+        RegisteredAt: new Date().toISOString().replace("T", " ").slice(0, 19),
+        source: "drtracker",
+      });
+      saveLeads(leads);
+    }
+
+    res.json(apiData);
+  } catch (err) {
+    res.status(500).json({
+      ret_code: "500",
+      ret_message: "Server error",
+      error: err.message,
+    });
+  }
+});
+
+// Dr Tracker Get Leads Status endpoint
+app.post("/api/drtracker-leads", async (req, res) => {
+  const data = req.body;
+
+  const params = new URLSearchParams({
+    ApiKey: DRTRACKER_API_KEY,
+    ApiPassword: DRTRACKER_API_PASSWORD,
+    DateFrom: data.DateFrom || "",
+    DateTo: data.DateTo || "",
+    Grouped: data.Grouped || "0",
+  });
+
+  try {
+    const apiRes = await fetch(`${DRTRACKER_API_URL}?act=get_leads_status`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    const apiData = await apiRes.json();
+    res.json(apiData);
+  } catch (err) {
+    res.status(500).json({
+      ret_code: "500",
+      ret_message: "Server error",
+      error: err.message,
+    });
+  }
+});
+
+// Dr Tracker Get Depositors endpoint
+app.post("/api/drtracker-deposits", async (req, res) => {
+  const data = req.body;
+
+  const params = new URLSearchParams({
+    ApiKey: DRTRACKER_API_KEY,
+    ApiPassword: DRTRACKER_API_PASSWORD,
+    DateFrom: data.DateFrom || "",
+    DateTo: data.DateTo || "",
+    Grouped: data.Grouped || "0",
+  });
+
+  try {
+    const apiRes = await fetch(`${DRTRACKER_API_URL}?act=get_depositors`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    const apiData = await apiRes.json();
+    res.json(apiData);
+  } catch (err) {
+    res.status(500).json({
+      ret_code: "500",
+      ret_message: "Server error",
+      error: err.message,
+    });
+  }
 });
 
 app.listen(PORT, () => {

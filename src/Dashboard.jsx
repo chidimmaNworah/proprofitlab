@@ -26,6 +26,20 @@ export default function Dashboard({ onLogout }) {
   const [ftdError, setFtdError] = useState("");
   const [modalData, setModalData] = useState(null);
 
+  // Dr Tracker state
+  const [dtLeads, setDtLeads] = useState([]);
+  const [dtDeposits, setDtDeposits] = useState([]);
+  const [dtLeadsLoading, setDtLeadsLoading] = useState(false);
+  const [dtFtdLoading, setDtFtdLoading] = useState(false);
+  const [dtLeadsError, setDtLeadsError] = useState("");
+  const [dtFtdError, setDtFtdError] = useState("");
+  const [dtDateFrom, setDtDateFrom] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
+  const [dtDateTo, setDtDateTo] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
+
   // Settings state
   const [settingsForm, setSettingsForm] = useState({
     currentPassword: "",
@@ -121,6 +135,74 @@ export default function Dashboard({ onLogout }) {
     fetchFTDs();
   };
 
+  // Dr Tracker fetch functions
+  const fetchDtLeads = async () => {
+    if (!dtDateFrom || !dtDateTo) {
+      setDtLeadsError("Please select both start and end dates.");
+      return;
+    }
+    setDtLeadsLoading(true);
+    setDtLeadsError("");
+    try {
+      const res = await fetch("/api/drtracker-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          DateFrom: `${dtDateFrom} 00:00:00`,
+          DateTo: `${dtDateTo} 23:59:59`,
+          Grouped: "0",
+        }),
+      });
+      const data = await res.json();
+      if (data.ret_code === "200") {
+        setDtLeads(data.ret_message?.leads || []);
+      } else {
+        setDtLeadsError(data.ret_message || "Failed to fetch leads.");
+        setDtLeads([]);
+      }
+    } catch {
+      setDtLeadsError("Network error.");
+      setDtLeads([]);
+    }
+    setDtLeadsLoading(false);
+  };
+
+  const fetchDtDeposits = async () => {
+    if (!dtDateFrom || !dtDateTo) {
+      setDtFtdError("Please select both start and end dates.");
+      return;
+    }
+    setDtFtdLoading(true);
+    setDtFtdError("");
+    try {
+      const res = await fetch("/api/drtracker-deposits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          DateFrom: `${dtDateFrom} 00:00:00`,
+          DateTo: `${dtDateTo} 23:59:59`,
+          Grouped: "0",
+        }),
+      });
+      const data = await res.json();
+      if (data.ret_code === "200") {
+        setDtDeposits(data.ret_message?.deposits || []);
+      } else {
+        setDtFtdError(data.ret_message || "Failed to fetch deposits.");
+        setDtDeposits([]);
+      }
+    } catch {
+      setDtFtdError("Network error.");
+      setDtDeposits([]);
+    }
+    setDtFtdLoading(false);
+  };
+
+  const refreshDtAll = () => {
+    fetchDtLeads();
+    fetchDtDeposits();
+  };
+
   useEffect(() => {
     refreshAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,6 +239,18 @@ export default function Dashboard({ onLogout }) {
           FTD
         </button>
         <button
+          className={`tab-btn ${activeTab === "dt-leads" ? "active" : ""}`}
+          onClick={() => setActiveTab("dt-leads")}
+        >
+          DT Leads
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "dt-ftd" ? "active" : ""}`}
+          onClick={() => setActiveTab("dt-ftd")}
+        >
+          DT FTD
+        </button>
+        <button
           className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
           onClick={() => setActiveTab("settings")}
         >
@@ -164,8 +258,8 @@ export default function Dashboard({ onLogout }) {
         </button>
       </div>
 
-      {/* Controls */}
-      {activeTab !== "settings" && (
+      {/* AlgoLead Controls */}
+      {(activeTab === "leads" || activeTab === "ftd") && (
         <div className="controls">
           <label>From:</label>
           <input
@@ -187,6 +281,33 @@ export default function Dashboard({ onLogout }) {
             disabled={leadsLoading || ftdLoading}
           >
             {leadsLoading || ftdLoading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
+      )}
+
+      {/* Dr Tracker Controls */}
+      {(activeTab === "dt-leads" || activeTab === "dt-ftd") && (
+        <div className="controls">
+          <label>From:</label>
+          <input
+            type="date"
+            className="date-input"
+            value={dtDateFrom}
+            onChange={(e) => setDtDateFrom(e.target.value)}
+          />
+          <label>To:</label>
+          <input
+            type="date"
+            className="date-input"
+            value={dtDateTo}
+            onChange={(e) => setDtDateTo(e.target.value)}
+          />
+          <button
+            className="refresh-btn"
+            onClick={refreshDtAll}
+            disabled={dtLeadsLoading || dtFtdLoading}
+          >
+            {dtLeadsLoading || dtFtdLoading ? "Loading..." : "Refresh"}
           </button>
         </div>
       )}
@@ -345,6 +466,125 @@ export default function Dashboard({ onLogout }) {
                           Details
                         </button>
                       </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* DT Leads Tab */}
+      {activeTab === "dt-leads" && (
+        <div>
+          <div className="stats">
+            <div className="stat-card">
+              <div className="number">{dtLeads.length}</div>
+              <div className="label">DT Leads</div>
+            </div>
+          </div>
+
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Lead ID</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Registration Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dtLeadsLoading ? (
+                  <tr>
+                    <td colSpan="4" className="loading-cell">
+                      <div className="loading-spinner" />
+                      Loading Dr Tracker leads...
+                    </td>
+                  </tr>
+                ) : dtLeadsError ? (
+                  <tr>
+                    <td colSpan="4" className="error-cell">
+                      {dtLeadsError}
+                    </td>
+                  </tr>
+                ) : dtLeads.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="empty-cell">
+                      No leads found. Select a date range and click Refresh.
+                    </td>
+                  </tr>
+                ) : (
+                  dtLeads.map((lead, i) => (
+                    <tr key={lead.leadid || i}>
+                      <td>{lead.leadid || "-"}</td>
+                      <td>{lead.email || "-"}</td>
+                      <td>
+                        <span
+                          className={`status-badge status-${(lead.status || "unknown").toLowerCase().replace(/\s+/g, "-")}`}
+                        >
+                          {lead.status || "Unknown"}
+                        </span>
+                      </td>
+                      <td>{lead.registration_date || "-"}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* DT FTD Tab */}
+      {activeTab === "dt-ftd" && (
+        <div>
+          <div className="stats">
+            <div className="stat-card">
+              <div className="number">{dtDeposits.length}</div>
+              <div className="label">DT Depositors</div>
+            </div>
+          </div>
+
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Lead ID</th>
+                  <th>Email</th>
+                  <th>Date Deposited</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dtFtdLoading ? (
+                  <tr>
+                    <td colSpan="4" className="loading-cell">
+                      <div className="loading-spinner" />
+                      Loading Dr Tracker depositors...
+                    </td>
+                  </tr>
+                ) : dtFtdError ? (
+                  <tr>
+                    <td colSpan="4" className="error-cell">
+                      {dtFtdError}
+                    </td>
+                  </tr>
+                ) : dtDeposits.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="empty-cell">
+                      No depositors found. Select a date range and click
+                      Refresh.
+                    </td>
+                  </tr>
+                ) : (
+                  dtDeposits.map((dep, i) => (
+                    <tr key={dep.leadid || i}>
+                      <td>{dep.leadid || "-"}</td>
+                      <td>{dep.email || "-"}</td>
+                      <td>{dep.date_deposited || "-"}</td>
+                      <td>{dep.amount || "0"}</td>
                     </tr>
                   ))
                 )}

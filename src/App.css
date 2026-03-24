@@ -95,6 +95,28 @@ body {
   max-width: 90px;
 }
 
+.form-row .prefix-select {
+  flex: 0 0 180px;
+  padding: 14px 16px;
+  font-size: 14px;
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.form-row .prefix-select:focus {
+  border-color: #00d4ff;
+}
+
+.form-row .prefix-select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
 .algo-form input {
   flex: 1;
   padding: 14px 16px;
@@ -526,4 +548,161 @@ td {
 .detail-value {
   color: #fff;
   font-weight: 500;
+}
+
+/* ── Dr Tracker ── */
+.drtracker-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.drtracker-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.drtracker-tabs .tab-btn {
+  padding: 12px 30px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #888;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.drtracker-tabs .tab-btn:hover {
+  background: #252525;
+  color: #fff;
+}
+
+.drtracker-tabs .tab-btn.active {
+  background: linear-gradient(135deg, #00d4ff, #7c3aed);
+  color: #fff;
+  border: none;
+}
+
+/* Data view styles */
+.data-view {
+  max-width: 900px;
+}
+
+.date-filter {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-filter input[type="date"] {
+  padding: 12px 16px;
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.date-filter input[type="date"]:focus {
+  outline: none;
+  border-color: #00d4ff;
+}
+
+.fetch-btn {
+  min-width: 150px;
+}
+
+.data-table-wrapper {
+  overflow-x: auto;
+  background: #1a1a1a;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  padding: 15px;
+  background: #252525;
+  color: #00d4ff;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+.data-table td {
+  padding: 15px;
+  font-size: 0.9rem;
+  color: #ccc;
+  border-bottom: 1px solid #333;
+}
+
+.data-table tr:hover {
+  background: #252525;
+}
+
+.no-data {
+  text-align: center;
+  color: #666;
+  padding: 30px;
+  font-size: 0.95rem;
+}
+
+.success {
+  color: #22c55e;
+  font-size: 14px;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* Status badges for Dr Tracker */
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-calling {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.status-new,
+.status-pending {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.status-ftd,
+.status-deposited,
+.status-converted {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.status-rejected,
+.status-invalid,
+.status-failed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.status-unknown {
+  background: rgba(107, 114, 128, 0.2);
+  color: #6b7280;
 }
