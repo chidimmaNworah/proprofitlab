@@ -76,6 +76,7 @@ function DrTracker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [countryCode, setCountryCode] = useState("");
 
   const [clickId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -87,9 +88,13 @@ function DrTracker() {
     fetch("https://geinfoinfo.mrtinaixii.workers.dev/")
       .then((r) => r.text())
       .then((code) => {
-        const detected = countryData.find((c) => c.code === code.trim());
-        if (detected && !form.PhonePrefix) {
-          setForm((prev) => ({ ...prev, PhonePrefix: detected.prefix }));
+        const trimmed = code.trim();
+        setCountryCode(trimmed);
+        const detected = countryData.find((c) => c.code === trimmed);
+        if (detected) {
+          setForm((prev) =>
+            prev.PhonePrefix ? prev : { ...prev, PhonePrefix: detected.prefix },
+          );
         }
       })
       .catch(() => {});
@@ -145,14 +150,14 @@ function DrTracker() {
       if (data.ret_code === "200" || data.ret_code === "201") {
         if (data.url) {
           window.location.href = data.url;
-        } else {
-          setSuccess("Registration successful!");
+          return; // navigation underway — stop here
         }
+        setSuccess("Registration successful!");
       } else {
         setError(data.ret_message || "Registration failed.");
       }
-    } catch {
-      setError("Network error.");
+    } catch (err) {
+      setError(err.message || "Network error. Please try again.");
     }
 
     setLoading(false);
@@ -223,6 +228,12 @@ function DrTracker() {
             required
           />
         </div>{" "}
+        {countryCode && (
+          <div className="detected-info">
+            Detected: {countryCode} →{" "}
+            {countryData.find((c) => c.code === countryCode)?.name || "Unknown"}
+          </div>
+        )}
         <input
           name="Description"
           placeholder="Description (optional)"
