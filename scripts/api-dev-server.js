@@ -4,17 +4,28 @@ import { config } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
-import algoleadRegisterHandler from "../api/algolead/register.js";
-import algoleadLeadsHandler from "../api/algolead/leads.js";
-import algoleadDepositsHandler from "../api/algolead/deposits.js";
-import drtrackerRegisterHandler from "../api/drtracker/register.js";
-import drtrackerLeadsHandler from "../api/drtracker/leads.js";
-import drtrackerDepositsHandler from "../api/drtracker/deposits.js";
-import authLoginHandler from "../api/auth/login.js";
-import authChangeHandler from "../api/auth/change.js";
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: join(__dirname, "..", ".env") });
+
+const [
+  { default: algoleadRegisterHandler },
+  { default: algoleadLeadsHandler },
+  { default: algoleadDepositsHandler },
+  { default: drtrackerRegisterHandler },
+  { default: drtrackerLeadsHandler },
+  { default: drtrackerDepositsHandler },
+  { default: authLoginHandler },
+  { default: authChangeHandler },
+] = await Promise.all([
+  import("../api/algolead/register.js"),
+  import("../api/algolead/leads.js"),
+  import("../api/algolead/deposits.js"),
+  import("../api/drtracker/register.js"),
+  import("../api/drtracker/leads.js"),
+  import("../api/drtracker/deposits.js"),
+  import("../api/auth/login.js"),
+  import("../api/auth/change.js"),
+]);
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
