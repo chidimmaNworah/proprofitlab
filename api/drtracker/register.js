@@ -13,6 +13,14 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
+  if (!DRTRACKER_API_URL) {
+    return res.status(500).json({
+      ret_code: "500",
+      ret_message:
+        "Server configuration error: DRTRACKER_API_URL is not set. Please contact developer.",
+    });
+  }
+
   const redis = getRedis();
   try {
     await redis.ping();

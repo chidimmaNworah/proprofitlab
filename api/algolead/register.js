@@ -13,6 +13,14 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
+  if (!ALGOLEAD_API_URL) {
+    return res.status(500).json({
+      status: "Failed",
+      errors:
+        "Server configuration error: ALGOLEAD_API_URL is not set. Please contact developer.",
+    });
+  }
+
   const redis = getRedis();
   try {
     await redis.ping();
