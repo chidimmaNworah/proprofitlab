@@ -4,12 +4,12 @@ import { config } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
-import registerHandler from "../api/register.js";
-import leadsHandler from "../api/leads.js";
-import depositsHandler from "../api/deposits.js";
-import drtrackerHandler from "../api/drtracker.js";
-import drtrackerLeadsHandler from "../api/drtracker-leads.js";
-import drtrackerDepositsHandler from "../api/drtracker-deposits.js";
+import algoleadRegisterHandler from "../api/algolead/register.js";
+import algoleadLeadsHandler from "../api/algolead/leads.js";
+import algoleadDepositsHandler from "../api/algolead/deposits.js";
+import drtrackerRegisterHandler from "../api/drtracker/register.js";
+import drtrackerLeadsHandler from "../api/drtracker/leads.js";
+import drtrackerDepositsHandler from "../api/drtracker/deposits.js";
 import authLoginHandler from "../api/auth/login.js";
 import authChangeHandler from "../api/auth/change.js";
 
@@ -35,12 +35,12 @@ function mountPost(path, handler) {
   });
 }
 
-mountPost("/api/register", registerHandler);
-mountPost("/api/leads", leadsHandler);
-mountPost("/api/deposits", depositsHandler);
-mountPost("/api/drtracker", drtrackerHandler);
-mountPost("/api/drtracker-leads", drtrackerLeadsHandler);
-mountPost("/api/drtracker-deposits", drtrackerDepositsHandler);
+mountPost("/api/algolead/register", algoleadRegisterHandler);
+mountPost("/api/algolead/leads", algoleadLeadsHandler);
+mountPost("/api/algolead/deposits", algoleadDepositsHandler);
+mountPost("/api/drtracker/register", drtrackerRegisterHandler);
+mountPost("/api/drtracker/leads", drtrackerLeadsHandler);
+mountPost("/api/drtracker/deposits", drtrackerDepositsHandler);
 mountPost("/api/auth/login", authLoginHandler);
 mountPost("/api/auth/change", authChangeHandler);
 

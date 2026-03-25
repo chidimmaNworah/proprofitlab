@@ -82,7 +82,7 @@ export default function Dashboard({ onLogout }) {
     setLeadsLoading(true);
     setLeadsError("");
     try {
-      const res = await fetch("/api/leads", {
+      const res = await fetch("/api/algolead/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -108,7 +108,7 @@ export default function Dashboard({ onLogout }) {
     setFtdLoading(true);
     setFtdError("");
     try {
-      const res = await fetch("/api/deposits", {
+      const res = await fetch("/api/algolead/deposits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -144,7 +144,7 @@ export default function Dashboard({ onLogout }) {
     setDtLeadsLoading(true);
     setDtLeadsError("");
     try {
-      const res = await fetch("/api/drtracker-leads", {
+      const res = await fetch("/api/drtracker/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -175,7 +175,7 @@ export default function Dashboard({ onLogout }) {
     setDtFtdLoading(true);
     setDtFtdError("");
     try {
-      const res = await fetch("/api/drtracker-deposits", {
+      const res = await fetch("/api/drtracker/deposits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

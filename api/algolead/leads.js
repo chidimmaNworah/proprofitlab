@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
+const ALGOLEAD_API_URL = process.env.ALGOLEAD_API_URL;
 
 function getRedis() {
   return new Redis({
@@ -33,7 +33,6 @@ export default async function handler(req, res) {
     const apiRes = await fetch(url);
     const apiData = await apiRes.json();
 
-    // Merge Redis-stored lead details with API data
     if (apiData.status === "Success" && Array.isArray(apiData.data)) {
       try {
         const redis = getRedis();

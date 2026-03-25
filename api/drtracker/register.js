@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const DRTRACKER_API_URL = "https://tracker.edgecastmarketing.org/repost.php";
+const DRTRACKER_API_URL = process.env.DRTRACKER_API_URL;
 
 function getRedis() {
   return new Redis({
@@ -41,7 +41,6 @@ export default async function handler(req, res) {
 
     const apiData = await apiRes.json();
 
-    // Store lead details in Redis on success
     if (apiData.ret_code === "200" || apiData.ret_code === "201") {
       try {
         const redis = getRedis();

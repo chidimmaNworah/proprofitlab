@@ -1,4 +1,4 @@
-const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
+const ALGOLEAD_API_URL = process.env.ALGOLEAD_API_URL;
 
 export default async function handler(req, res) {
   if (req.method !== "POST")

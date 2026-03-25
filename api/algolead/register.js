@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
+const ALGOLEAD_API_URL = process.env.ALGOLEAD_API_URL;
 
 function getRedis() {
   return new Redis({
@@ -41,7 +41,6 @@ export default async function handler(req, res) {
     const apiRes = await fetch(url);
     const apiData = await apiRes.json();
 
-    // Store lead details in Redis on success
     if (apiData.status === "Success" && apiData.data) {
       try {
         const redis = getRedis();
@@ -61,7 +60,6 @@ export default async function handler(req, res) {
               .slice(0, 19),
           };
           await redis.hset(`lead:${accountId}`, leadInfo);
-          // Also add to the set of all lead IDs for easy listing
           await redis.sadd("lead_ids", accountId);
         }
       } catch {
