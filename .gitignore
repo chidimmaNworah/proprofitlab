@@ -12,8 +12,6 @@ dist
 dist-ssr
 *.local
 .env
-server/credentials.json
-server/leads.json
 
 # Editor directories and files
 .vscode/*

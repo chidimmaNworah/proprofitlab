@@ -137,7 +137,7 @@ function DrTracker() {
         ClickID: clickId,
       };
 
-      const res = await fetch("/api/drtracker", {
+      const res = await fetch("/api/drtracker/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

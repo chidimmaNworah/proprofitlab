@@ -157,7 +157,7 @@ function AlgoLead() {
         CustomSource: "proprofitlab",
       };
 
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/algolead/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

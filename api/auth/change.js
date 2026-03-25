@@ -21,13 +21,23 @@ export default async function handler(req, res) {
   const { currentPassword, newUsername, newPassword } = req.body;
   const redis = getRedis();
 
+  try {
+    await redis.ping();
+  } catch {
+    return res
+      .status(503)
+      .json({
+        success: false,
+        error: "Database is not available. Please contact developer.",
+      });
+  }
+
   // Verify current password
-  let currentHash, currentSalt, currentUsername;
+  let currentHash, currentSalt;
 
   try {
     const creds = await redis.hgetall("dash_credentials");
     if (creds && creds.username) {
-      currentUsername = creds.username;
       currentHash = creds.passwordHash;
       currentSalt = creds.salt;
     }
@@ -37,7 +47,6 @@ export default async function handler(req, res) {
 
   // If no Redis credentials, check env vars
   if (!currentHash) {
-    currentUsername = process.env.DASH_USERNAME || "admin";
     const envHash = process.env.DASH_PASSWORD_HASH;
     const envSalt = process.env.DASH_PASSWORD_SALT;
     if (envHash && envSalt) {

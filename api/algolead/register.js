@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
+const ALGOLEAD_API_URL = process.env.ALGOLEAD_API_URL;
 
 function getRedis() {
   return new Redis({
@@ -12,6 +12,24 @@ function getRedis() {
 export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
+
+  if (!ALGOLEAD_API_URL) {
+    return res.status(500).json({
+      status: "Failed",
+      errors:
+        "Server configuration error: ALGOLEAD_API_URL is not set. Please contact developer.",
+    });
+  }
+
+  const redis = getRedis();
+  try {
+    await redis.ping();
+  } catch {
+    return res.status(503).json({
+      status: "Failed",
+      errors: "Database is not available. Please contact developer.",
+    });
+  }
 
   const data = req.body;
 
@@ -41,10 +59,8 @@ export default async function handler(req, res) {
     const apiRes = await fetch(url);
     const apiData = await apiRes.json();
 
-    // Store lead details in Redis on success
     if (apiData.status === "Success" && apiData.data) {
       try {
-        const redis = getRedis();
         const accountId = apiData.data.AccountID || apiData.data.UserID;
         if (accountId) {
           const leadInfo = {
@@ -61,7 +77,6 @@ export default async function handler(req, res) {
               .slice(0, 19),
           };
           await redis.hset(`lead:${accountId}`, leadInfo);
-          // Also add to the set of all lead IDs for easy listing
           await redis.sadd("lead_ids", accountId);
         }
       } catch {
@@ -70,7 +85,8 @@ export default async function handler(req, res) {
     }
 
     res.json(apiData);
-  } catch {
+  } catch (error) {
+    console.error("Error calling Algolead API", error);
     res.status(500).json({ status: "Failed", errors: "Server error" });
   }
 }

@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const ALGOLEAD_API_URL = "https://communication.algolead.org/api.php";
+const ALGOLEAD_API_URL = process.env.ALGOLEAD_API_URL;
 
 function getRedis() {
   return new Redis({
@@ -12,6 +12,14 @@ function getRedis() {
 export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
+
+  if (!ALGOLEAD_API_URL) {
+    return res.status(500).json({
+      status: "Failed",
+      errors:
+        "Server configuration error: ALGOLEAD_API_URL is not set. Please contact developer.",
+    });
+  }
 
   const data = req.body;
 
@@ -33,7 +41,6 @@ export default async function handler(req, res) {
     const apiRes = await fetch(url);
     const apiData = await apiRes.json();
 
-    // Merge Redis-stored lead details with API data
     if (apiData.status === "Success" && Array.isArray(apiData.data)) {
       try {
         const redis = getRedis();
