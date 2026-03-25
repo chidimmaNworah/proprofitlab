@@ -21,6 +21,17 @@ export default async function handler(req, res) {
   const { currentPassword, newUsername, newPassword } = req.body;
   const redis = getRedis();
 
+  try {
+    await redis.ping();
+  } catch {
+    return res
+      .status(503)
+      .json({
+        success: false,
+        error: "Database is not available. Please contact developer.",
+      });
+  }
+
   // Verify current password
   let currentHash, currentSalt;
 
