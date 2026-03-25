@@ -70,7 +70,8 @@ export default async function handler(req, res) {
     }
 
     res.json(apiData);
-  } catch {
+  } catch (error) {
+    console.error("Error calling Algolead API", error);
     res.status(500).json({ status: "Failed", errors: "Server error" });
   }
 }
