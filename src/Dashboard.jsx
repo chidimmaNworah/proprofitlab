@@ -14,8 +14,18 @@ function nowLocal() {
   return new Date().toISOString().slice(0, 16);
 }
 
+const DASHBOARD_TABS = {
+  ALGOLEAD_LEADS: "algolead-leads",
+  ALGOLEAD_FTD: "algolead-ftd",
+  DRTRACKER_LEADS: "drtracker-leads",
+  DRTRACKER_FTD: "drtracker-ftd",
+  SETTINGS: "settings",
+};
+
 export default function Dashboard({ onLogout }) {
-  const [activeTab, setActiveTab] = useState("leads");
+  const [activeDashboardTab, setActiveDashboardTab] = useState(
+    DASHBOARD_TABS.ALGOLEAD_LEADS,
+  );
   const [dateFrom, setDateFrom] = useState(todayStart);
   const [dateTo, setDateTo] = useState(nowLocal);
   const [leads, setLeads] = useState([]);
@@ -227,39 +237,42 @@ export default function Dashboard({ onLogout }) {
       {/* Tabs */}
       <div className="tabs">
         <button
-          className={`tab-btn ${activeTab === "leads" ? "active" : ""}`}
-          onClick={() => setActiveTab("leads")}
+          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_LEADS ? "active" : ""}`}
+          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.ALGOLEAD_LEADS)}
         >
-          Leads
+          AlgoLead Leads
         </button>
         <button
-          className={`tab-btn ${activeTab === "ftd" ? "active" : ""}`}
-          onClick={() => setActiveTab("ftd")}
+          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_FTD ? "active" : ""}`}
+          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.ALGOLEAD_FTD)}
         >
-          FTD
+          AlgoLead FTD
         </button>
         <button
-          className={`tab-btn ${activeTab === "dt-leads" ? "active" : ""}`}
-          onClick={() => setActiveTab("dt-leads")}
+          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.DRTRACKER_LEADS ? "active" : ""}`}
+          onClick={() =>
+            setActiveDashboardTab(DASHBOARD_TABS.DRTRACKER_LEADS)
+          }
         >
-          DT Leads
+          DrTracker Leads
         </button>
         <button
-          className={`tab-btn ${activeTab === "dt-ftd" ? "active" : ""}`}
-          onClick={() => setActiveTab("dt-ftd")}
+          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.DRTRACKER_FTD ? "active" : ""}`}
+          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.DRTRACKER_FTD)}
         >
-          DT FTD
+          DrTracker FTD
         </button>
         <button
-          className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
-          onClick={() => setActiveTab("settings")}
+          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.SETTINGS ? "active" : ""}`}
+          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.SETTINGS)}
         >
           Settings
         </button>
       </div>
 
       {/* AlgoLead Controls */}
-      {(activeTab === "leads" || activeTab === "ftd") && (
+      {(activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_LEADS ||
+        activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_FTD) && (
         <div className="controls">
           <label>From:</label>
           <input
@@ -286,7 +299,8 @@ export default function Dashboard({ onLogout }) {
       )}
 
       {/* Dr Tracker Controls */}
-      {(activeTab === "dt-leads" || activeTab === "dt-ftd") && (
+      {(activeDashboardTab === DASHBOARD_TABS.DRTRACKER_LEADS ||
+        activeDashboardTab === DASHBOARD_TABS.DRTRACKER_FTD) && (
         <div className="controls">
           <label>From:</label>
           <input
@@ -313,7 +327,7 @@ export default function Dashboard({ onLogout }) {
       )}
 
       {/* Leads Tab */}
-      {activeTab === "leads" && (
+      {activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_LEADS && (
         <div>
           <div className="stats">
             <div className="stat-card">
@@ -392,7 +406,7 @@ export default function Dashboard({ onLogout }) {
       )}
 
       {/* FTD Tab */}
-      {activeTab === "ftd" && (
+      {activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_FTD && (
         <div>
           <div className="stats">
             <div className="stat-card">
@@ -476,7 +490,7 @@ export default function Dashboard({ onLogout }) {
       )}
 
       {/* DT Leads Tab */}
-      {activeTab === "dt-leads" && (
+      {activeDashboardTab === DASHBOARD_TABS.DRTRACKER_LEADS && (
         <div>
           <div className="stats">
             <div className="stat-card">
@@ -538,7 +552,7 @@ export default function Dashboard({ onLogout }) {
       )}
 
       {/* DT FTD Tab */}
-      {activeTab === "dt-ftd" && (
+      {activeDashboardTab === DASHBOARD_TABS.DRTRACKER_FTD && (
         <div>
           <div className="stats">
             <div className="stat-card">
@@ -595,7 +609,7 @@ export default function Dashboard({ onLogout }) {
       )}
 
       {/* Settings Tab */}
-      {activeTab === "settings" && (
+      {activeDashboardTab === DASHBOARD_TABS.SETTINGS && (
         <div className="form-container" style={{ margin: "0 auto" }}>
           <h2 style={{ color: "#00d4ff", marginBottom: 20 }}>
             Change Credentials
