@@ -13,6 +13,16 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
+  const redis = getRedis();
+  try {
+    await redis.ping();
+  } catch {
+    return res.status(503).json({
+      status: "Failed",
+      errors: "Database is not available. Please contact developer.",
+    });
+  }
+
   const data = req.body;
 
   const params = {
@@ -43,7 +53,6 @@ export default async function handler(req, res) {
 
     if (apiData.status === "Success" && apiData.data) {
       try {
-        const redis = getRedis();
         const accountId = apiData.data.AccountID || apiData.data.UserID;
         if (accountId) {
           const leadInfo = {

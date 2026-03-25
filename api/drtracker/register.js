@@ -13,6 +13,16 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
+  const redis = getRedis();
+  try {
+    await redis.ping();
+  } catch {
+    return res.status(503).json({
+      ret_code: "503",
+      ret_message: "Database is not available. Please contact developer.",
+    });
+  }
+
   const data = req.body;
 
   const params = new URLSearchParams({
@@ -43,7 +53,6 @@ export default async function handler(req, res) {
 
     if (apiData.ret_code === "200" || apiData.ret_code === "201") {
       try {
-        const redis = getRedis();
         const leadId =
           apiData.leadid || apiData.uniqueid || Date.now().toString();
         const leadInfo = {
