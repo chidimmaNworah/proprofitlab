@@ -17,6 +17,7 @@ export default async function handler(req, res) {
   const params = new URLSearchParams({
     ApiKey: process.env.DRTRACKER_API_KEY,
     ApiPassword: process.env.DRTRACKER_API_PASSWORD,
+    CampaignID: process.env.DRTRACKER_CAMPAIGN_ID,
     DateFrom: data.DateFrom || "",
     DateTo: data.DateTo || "",
     Grouped: data.Grouped || "0",
