@@ -253,9 +253,7 @@ export default function Dashboard({ onLogout }) {
         </button>
         <button
           className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.DRTRACKER_LEADS ? "active" : ""}`}
-          onClick={() =>
-            setActiveDashboardTab(DASHBOARD_TABS.DRTRACKER_LEADS)
-          }
+          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.DRTRACKER_LEADS)}
         >
           DrTracker Leads
         </button>
