@@ -35,12 +35,10 @@ export default async function handler(req, res) {
     const apiData = await apiRes.json();
     res.json(apiData);
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        ret_code: "500",
-        ret_message: "Server error",
-        error: err.message,
-      });
+    res.status(500).json({
+      ret_code: "500",
+      ret_message: "Server error",
+      error: err.message,
+    });
   }
 }
