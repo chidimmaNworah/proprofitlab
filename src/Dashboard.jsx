@@ -43,9 +43,11 @@ export default function Dashboard({ onLogout }) {
   const [dtFtdLoading, setDtFtdLoading] = useState(false);
   const [dtLeadsError, setDtLeadsError] = useState("");
   const [dtFtdError, setDtFtdError] = useState("");
-  const [dtDateFrom, setDtDateFrom] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [dtDateFrom, setDtDateFrom] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  });
   const [dtDateTo, setDtDateTo] = useState(
     new Date().toISOString().slice(0, 10),
   );
@@ -215,6 +217,7 @@ export default function Dashboard({ onLogout }) {
 
   useEffect(() => {
     refreshAll();
+    refreshDtAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
