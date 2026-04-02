@@ -15,8 +15,6 @@ function nowLocal() {
 }
 
 const DASHBOARD_TABS = {
-  ALGOLEAD_LEADS: "algolead-leads",
-  ALGOLEAD_FTD: "algolead-ftd",
   DRTRACKER_LEADS: "drtracker-leads",
   DRTRACKER_FTD: "drtracker-ftd",
   SETTINGS: "settings",
@@ -24,16 +22,8 @@ const DASHBOARD_TABS = {
 
 export default function Dashboard({ onLogout }) {
   const [activeDashboardTab, setActiveDashboardTab] = useState(
-    DASHBOARD_TABS.ALGOLEAD_LEADS,
+    DASHBOARD_TABS.DRTRACKER_LEADS,
   );
-  const [dateFrom, setDateFrom] = useState(todayStart);
-  const [dateTo, setDateTo] = useState(nowLocal);
-  const [leads, setLeads] = useState([]);
-  const [deposits, setDeposits] = useState([]);
-  const [leadsLoading, setLeadsLoading] = useState(false);
-  const [ftdLoading, setFtdLoading] = useState(false);
-  const [leadsError, setLeadsError] = useState("");
-  const [ftdError, setFtdError] = useState("");
   const [modalData, setModalData] = useState(null);
 
   // Dr Tracker state
@@ -88,63 +78,6 @@ export default function Dashboard({ onLogout }) {
       setSettingsError("Server error.");
     }
     setSettingsLoading(false);
-  };
-
-  const fetchLeads = async () => {
-    setLeadsLoading(true);
-    setLeadsError("");
-    try {
-      const res = await fetch("/api/algolead/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          CreateTimeFrom: formatDateForAPI(dateFrom),
-          CreateTimeTo: formatDateForAPI(dateTo),
-        }),
-      });
-      const data = await res.json();
-      if (data.status === "Success") {
-        setLeads(Array.isArray(data.data) ? data.data : []);
-      } else {
-        setLeadsError(data.errors || "Failed to fetch leads.");
-        setLeads([]);
-      }
-    } catch {
-      setLeadsError("Network error.");
-      setLeads([]);
-    }
-    setLeadsLoading(false);
-  };
-
-  const fetchFTDs = async () => {
-    setFtdLoading(true);
-    setFtdError("");
-    try {
-      const res = await fetch("/api/algolead/deposits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          CreateTimeFrom: formatDateForAPI(dateFrom),
-          CreateTimeTo: formatDateForAPI(dateTo),
-        }),
-      });
-      const data = await res.json();
-      if (data.status === "Success") {
-        setDeposits(Array.isArray(data.data) ? data.data : []);
-      } else {
-        setFtdError(data.errors || "Failed to fetch deposits.");
-        setDeposits([]);
-      }
-    } catch {
-      setFtdError("Network error.");
-      setDeposits([]);
-    }
-    setFtdLoading(false);
-  };
-
-  const refreshAll = () => {
-    fetchLeads();
-    fetchFTDs();
   };
 
   // Dr Tracker fetch functions
@@ -216,15 +149,9 @@ export default function Dashboard({ onLogout }) {
   };
 
   useEffect(() => {
-    refreshAll();
     refreshDtAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const totalFtdAmount = deposits.reduce(
-    (sum, d) => sum + (parseFloat(d.Amount) || 0),
-    0,
-  );
 
   return (
     <div className="dashboard">
@@ -239,18 +166,6 @@ export default function Dashboard({ onLogout }) {
 
       {/* Tabs */}
       <div className="tabs">
-        <button
-          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_LEADS ? "active" : ""}`}
-          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.ALGOLEAD_LEADS)}
-        >
-          AlgoLead Leads
-        </button>
-        <button
-          className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_FTD ? "active" : ""}`}
-          onClick={() => setActiveDashboardTab(DASHBOARD_TABS.ALGOLEAD_FTD)}
-        >
-          AlgoLead FTD
-        </button>
         <button
           className={`tab-btn ${activeDashboardTab === DASHBOARD_TABS.DRTRACKER_LEADS ? "active" : ""}`}
           onClick={() => setActiveDashboardTab(DASHBOARD_TABS.DRTRACKER_LEADS)}
@@ -270,34 +185,6 @@ export default function Dashboard({ onLogout }) {
           Settings
         </button>
       </div>
-
-      {/* AlgoLead Controls */}
-      {(activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_LEADS ||
-        activeDashboardTab === DASHBOARD_TABS.ALGOLEAD_FTD) && (
-        <div className="controls">
-          <label>From:</label>
-          <input
-            type="datetime-local"
-            className="date-input"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-          />
-          <label>To:</label>
-          <input
-            type="datetime-local"
-            className="date-input"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-          />
-          <button
-            className="refresh-btn"
-            onClick={refreshAll}
-            disabled={leadsLoading || ftdLoading}
-          >
-            {leadsLoading || ftdLoading ? "Loading..." : "Refresh"}
-          </button>
-        </div>
-      )}
 
       {/* Dr Tracker Controls */}
       {(activeDashboardTab === DASHBOARD_TABS.DRTRACKER_LEADS ||

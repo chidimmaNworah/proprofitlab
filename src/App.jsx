@@ -3,7 +3,6 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./Dashboard";
 import DrTracker from "./DrTracker";
-import AlgoLead from "./AlgoLead";
 
 function App() {
   const location = useLocation();
@@ -36,8 +35,8 @@ function App() {
   };
 
   const isActive = (path) => {
-    if (path === "/algolead") {
-      return location.pathname === "/" || location.pathname === "/algolead";
+    if (path === "/drtracker") {
+      return location.pathname === "/" || location.pathname === "/drtracker";
     }
     return location.pathname === path;
   };
@@ -46,12 +45,6 @@ function App() {
     <div className="app-wrapper">
       <nav className="top-nav">
         <span className="brand">ProProfitLab</span>
-        <Link
-          to="/algolead"
-          className={`nav-btn ${isActive("/algolead") ? "active" : ""}`}
-        >
-          AlgoLead
-        </Link>
         <Link
           to="/drtracker"
           className={`nav-btn ${isActive("/drtracker") ? "active" : ""}`}
@@ -67,8 +60,7 @@ function App() {
       </nav>
 
       <Routes>
-        <Route path="/" element={<AlgoLead />} />
-        <Route path="/algolead" element={<AlgoLead />} />
+        <Route path="/" element={<DrTracker />} />
         <Route path="/drtracker" element={<DrTracker />} />
         <Route
           path="/dashboard"
@@ -86,7 +78,7 @@ function App() {
                 <p className="form-subtitle">
                   Enter credentials to access the dashboard.
                 </p>
-                <form onSubmit={handleDashLogin} className="algo-form">
+                <form onSubmit={handleDashLogin} className="ppl-form">
                   <input
                     placeholder="Username"
                     value={dashCreds.username}
